@@ -118,7 +118,7 @@ public class ExplosionField extends View {
             delay = 25;
         }
 
-        explode(explosion, delay, ExplosionAnimator.DEFAULT_DURATION);
+        explode(explosion, delay, explosion.getDuration());
     }
 
     public void clear() {

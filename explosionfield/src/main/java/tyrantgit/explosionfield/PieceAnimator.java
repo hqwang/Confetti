@@ -19,6 +19,7 @@ import android.graphics.Camera;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.View;
@@ -29,7 +30,7 @@ import java.util.Random;
 
 public class PieceAnimator extends ExplosionAnimator {
 
-    static long DEFAULT_DURATION = 1500;
+    private static long DEFAULT_DURATION = 1200;
     private static float END_VALUE = 1.3f;
     private static final Interpolator KEEP_FINISH_INTERPOLATOR = new KeepFinishInterpolator(0.6f, 0.6f, 0.7f);
     private static final Interpolator DEFAULT_INTERPOLATOR = new DecelerateInterpolator(0.6f);
@@ -42,6 +43,7 @@ public class PieceAnimator extends ExplosionAnimator {
     private Rect mBound;
     private View mContainer;
     private Matrix matrix = new Matrix();
+    private PaintFlagsDrawFilter mFilter = new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG);
 
     public static class KeepFinishInterpolator extends DecelerateInterpolator {
 
@@ -171,6 +173,7 @@ public class PieceAnimator extends ExplosionAnimator {
             return false;
         }
 
+        canvas.setDrawFilter(mFilter);
         for (Particle particle : mParticles) {
             particle.advance();
             if (particle.alpha > 0) {
