@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">ExplosionFieldSample</string>
-
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">ConfettiSample</string>
     <string name="action_reset">Reset</string>
 </resources>
