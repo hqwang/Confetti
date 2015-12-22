@@ -46,12 +46,11 @@ public class ExplosionAnimator extends ValueAnimator {
         mBound = new Rect(bound);
         int partLen = 15;
         mParticles = new Particle[partLen * partLen];
-        // roll in 0~1.
+        // roll in 0f ~ 1f.
         Random random = new Random(System.currentTimeMillis());
         int w = bitmap.getWidth() / (partLen + 2);
         int h = bitmap.getHeight() / (partLen + 2);
-        // i=0,j=0  i=partLen+1,j=partLen+1  i=partLen+2,j=partLen+2 which have been droped.
-        // Particle[15x15] is waiting been drawn.
+        // mParticles[0, 0], mParticles[partLen+1, partLen+1], mParticles[partLen+2, partLen+2] have been droped.
         for (int i = 0; i < partLen; i++) {
             for (int j = 0; j < partLen; j++) {
                 mParticles[(i * partLen) + j] = generateParticle(bitmap.getPixel((j + 1) * w, (i + 1) * h), random);
@@ -133,7 +132,6 @@ public class ExplosionAnimator extends ValueAnimator {
         float life;
         float overflow;
 
-
         public void advance(float factor) {
             float f = 0f;
             float normalization = factor / END_VALUE;
@@ -145,16 +143,16 @@ public class ExplosionAnimator extends ValueAnimator {
             normalization = (normalization - life) / (1f - life - overflow);
             // real value
             float f2 = normalization * END_VALUE;
-            // if realk >=0.7f, start dismiss
+            // if real k >=0.7f, start dismiss
             if (normalization >= 0.7f) {
                 f = (normalization - 0.7f) / 0.3f;
             }
             alpha = 1f - f;
 
             f = bottom * f2;
-            // 正态分布
+            // normal distribution
             cx = baseCx + f;
-            // 对勾
+            // parabola's right
             cy = (float) (baseCy - this.neg * Math.pow(f, 2.0)) - f * mag;
             // 20% bigger 80% smaller
             radius = V + (baseRadius - V) * f2;

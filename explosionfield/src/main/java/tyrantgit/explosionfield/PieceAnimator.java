@@ -30,10 +30,10 @@ import java.util.Random;
 public class PieceAnimator extends ExplosionAnimator {
 
     static long DEFAULT_DURATION = 1500;
+    private static float END_VALUE = 1.3f;
     private static final Interpolator KEEP_FINISH_INTERPOLATOR = new KeepFinishInterpolator(0.6f, 0.6f, 0.7f);
     private static final Interpolator DEFAULT_INTERPOLATOR = new DecelerateInterpolator(0.6f);
-    private static float mEndValue = 1.3f;
-    private static final int COLUMN_COUNT = 18;
+    private static final int COLUMN_COUNT = 15;
     private static float START_ROTATE = 360;
     private static float END_ROTATE = 360;
 
@@ -59,7 +59,8 @@ public class PieceAnimator extends ExplosionAnimator {
             if (input < mStartFinishFactor) {
                 return 0;
             } else if (input < mKeepFinishFactor) {
-                return 0.4f * super.getInterpolation((input - mStartFinishFactor) / (mKeepFinishFactor - mStartFinishFactor));
+                return 0.4f * super.getInterpolation(
+                        (input - mStartFinishFactor) / (mKeepFinishFactor - mStartFinishFactor));
             } else if (input < 1) {
                 return 0.4f + 0.6f * super.getInterpolation((input - mKeepFinishFactor) / (1 - mKeepFinishFactor));
             } else {
@@ -69,6 +70,10 @@ public class PieceAnimator extends ExplosionAnimator {
     }
 
     public PieceAnimator(View container, Bitmap bitmap, Rect bound) {
+        this(container, bitmap, bound, false);
+    }
+
+    public PieceAnimator(View container, Bitmap bitmap, Rect bound, boolean supportGravity) {
         super(container, bitmap, bound);
 
         mPaint = new Paint();
@@ -88,18 +93,20 @@ public class PieceAnimator extends ExplosionAnimator {
         mParticles = new Particle[partLineCount * partColumnCount];
         for (int i = 0; i < partLineCount; i++) {
             for (int j = 0; j < partColumnCount; j++) {
-                mParticles[(i * partColumnCount) + j] = generateParticle(i, j, (int) radius, bitmap, random);
+                mParticles[(i * partColumnCount) + j]
+                        = generateParticle(i, j, (int) radius, supportGravity, bitmap, random);
             }
         }
 
         mContainer = container;
 
-        setFloatValues(0, mEndValue);
+        setFloatValues(0, END_VALUE);
         setInterpolator(DEFAULT_INTERPOLATOR);
         setDuration(DEFAULT_DURATION);
     }
 
-    private Particle generateParticle(int line, int column, int radius, Bitmap bitmap, Random random) {
+    private Particle generateParticle(int line, int column, int radius, boolean supportGravity,
+                                      Bitmap bitmap, Random random) {
         Particle particle = new Particle();
         particle.piece = Bitmap.createBitmap(bitmap,
                 column * radius,
@@ -110,7 +117,7 @@ public class PieceAnimator extends ExplosionAnimator {
 
         matrix.reset();
         matrix.setTranslate(-mBound.centerX(), -mBound.centerY());
-        matrix.postScale(mEndValue, mEndValue, 0, 0);
+        matrix.postScale(END_VALUE, END_VALUE, 0, 0);
         matrix.postTranslate(mBound.centerX(), mBound.centerY());
 
         particle.srcRectF = new RectF();
@@ -128,16 +135,23 @@ public class PieceAnimator extends ExplosionAnimator {
 
         particle.rectF = new RectF(particle.srcRectF);
 
+        if (supportGravity) {
+            particle.gravity = particle.srcRectF.height() * (END_VALUE - 1) / 0.02f;
+        }
+
         particle.startRotateX = START_ROTATE * random.nextFloat();
         particle.startRotateY = START_ROTATE * random.nextFloat();
         particle.startRotateZ = START_ROTATE * random.nextFloat();
 
         particle.endRotateX = random.nextFloat() < 0.3f ? END_ROTATE * random.nextFloat() :
-                random.nextFloat() < 0.7f ? END_ROTATE + 180 * random.nextFloat() : END_ROTATE * 2 + 180 * random.nextFloat();
+                random.nextFloat() < 0.7f ? END_ROTATE + 180 * random.nextFloat() :
+                        END_ROTATE * 2 + 180 * random.nextFloat();
         particle.endRotateY = random.nextFloat() < 0.3f ? END_ROTATE * random.nextFloat() :
-                random.nextFloat() < 0.7f ? END_ROTATE + 180 * random.nextFloat() : END_ROTATE * 2 + 180 * random.nextFloat();
+                random.nextFloat() < 0.7f ? END_ROTATE + 180 * random.nextFloat() :
+                        END_ROTATE * 2 + 180 * random.nextFloat();
         particle.endRotateZ = random.nextFloat() < 0.3f ? END_ROTATE * random.nextFloat() :
-                random.nextFloat() < 0.7f ? END_ROTATE + 180 * random.nextFloat() : END_ROTATE * 2 + 180 * random.nextFloat();
+                random.nextFloat() < 0.7f ? END_ROTATE + 180 * random.nextFloat() :
+                        END_ROTATE * 2 + 180 * random.nextFloat();
 
         particle.life = 0f;
         particle.overflow = 0f;
@@ -175,6 +189,7 @@ public class PieceAnimator extends ExplosionAnimator {
         RectF srcRectF;
         RectF dstRectF;
         RectF rectF;
+        float gravity;
 
         float startRotateX;
         float startRotateY;
@@ -209,7 +224,8 @@ public class PieceAnimator extends ExplosionAnimator {
             alpha = 1f - KEEP_FINISH_INTERPOLATOR.getInterpolation(normalization);
 
             rectF.left = getValue(srcRectF.left, dstRectF.left, normalization);
-            rectF.top = getValue(srcRectF.top, dstRectF.top, normalization);
+            rectF.top = (float) (getValue(srcRectF.top, dstRectF.top, normalization)
+                    + gravity * Math.pow(normalization - 0.3f, 2));
             rectF.right = rectF.left + srcRectF.width();
             rectF.bottom = rectF.top + srcRectF.width();
 
