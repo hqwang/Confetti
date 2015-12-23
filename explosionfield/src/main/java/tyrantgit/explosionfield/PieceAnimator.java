@@ -30,13 +30,14 @@ import java.util.Random;
 
 public class PieceAnimator extends ExplosionAnimator {
 
-    private static long DEFAULT_DURATION = 1200;
-    private static float END_VALUE = 1.3f;
+    private static final long DEFAULT_DURATION = 1200;
+    private static final float END_VALUE = 1.3f;
     private static final Interpolator KEEP_FINISH_INTERPOLATOR = new KeepFinishInterpolator(0.6f, 0.6f, 0.7f);
     private static final Interpolator DEFAULT_INTERPOLATOR = new DecelerateInterpolator(0.6f);
+    private static final float INFLEXION_K = 0.3f;
     private static final int COLUMN_COUNT = 15;
-    private static float START_ROTATE = 360;
-    private static float END_ROTATE = 360;
+    private static final float START_ROTATE = 360;
+    private static final float END_ROTATE = 360;
 
     private Paint mPaint;
     private Particle[] mParticles;
@@ -138,7 +139,7 @@ public class PieceAnimator extends ExplosionAnimator {
         particle.rectF = new RectF(particle.srcRectF);
 
         if (supportGravity) {
-            particle.gravity = particle.srcRectF.height() * (END_VALUE - 1) / 0.02f;
+            particle.gravity = (float) (particle.srcRectF.height() * (END_VALUE - 1) / Math.pow(INFLEXION_K / 2, 2));
         }
 
         particle.startRotateX = START_ROTATE * random.nextFloat();
@@ -228,7 +229,7 @@ public class PieceAnimator extends ExplosionAnimator {
 
             rectF.left = getValue(srcRectF.left, dstRectF.left, normalization);
             rectF.top = (float) (getValue(srcRectF.top, dstRectF.top, normalization)
-                    + gravity * Math.pow(normalization - 0.3f, 2));
+                    + gravity * Math.pow(normalization - INFLEXION_K, 2));
             rectF.right = rectF.left + srcRectF.width();
             rectF.bottom = rectF.top + srcRectF.width();
 
