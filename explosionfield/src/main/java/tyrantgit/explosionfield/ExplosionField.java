@@ -32,11 +32,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-
 public class ExplosionField extends View {
 
     private List<ExplosionAnimator> mExplosions = new ArrayList<>();
     private int[] mExpandInset = new int[2];
+
+    public static final int MODE_EXPLOSION = 0;
+    public static final int MODE_CONFETTI = 1;
+    private int mMode = MODE_CONFETTI;
+
+    public static final int FLAG_SUPPORT_GRAVITY = 0x1;
+    private int mFlag;
 
     public ExplosionField(Context context) {
         super(context);
@@ -70,6 +76,12 @@ public class ExplosionField extends View {
         mExpandInset[1] = dy;
     }
 
+    public void setMode(int mode) {
+        if (this.mMode != mode) {
+            this.mMode = mode;
+        }
+    }
+
     public void explode(ExplosionAnimator explosion, long startDelay, long duration) {
         explosion.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -83,6 +95,14 @@ public class ExplosionField extends View {
         explosion.start();
     }
 
+    public void setFlag(int flag) {
+        this.mFlag |= flag;
+    }
+
+    public boolean checkFlag(int flag) {
+        return (this.mFlag & flag) > 0;
+    }
+
     public void explode(final View view) {
         Rect r = new Rect();
         view.getGlobalVisibleRect(r);
@@ -91,9 +111,11 @@ public class ExplosionField extends View {
         r.offset(-location[0], -location[1]);
         r.inset(-mExpandInset[0], -mExpandInset[1]);
 
-        final ExplosionAnimator explosion = new PieceAnimator(this, Utils.createBitmapFromView(view), r);
-        long delay;
-        if (explosion.getClass() == ExplosionAnimator.class) {
+        ExplosionAnimator explosion = null;
+        long delay = 0;
+
+        if (mMode == MODE_EXPLOSION) {
+            explosion = new ExplosionAnimator(this, Utils.createBitmapFromView(view), r);
             ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f).setDuration(150);
             animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
@@ -112,13 +134,16 @@ public class ExplosionField extends View {
                     .scaleX(0f).scaleY(0f).alpha(0f).start();
 
             delay = animator.getDuration();
-        } else {
 
+        } else if (mMode == MODE_CONFETTI) {
+            explosion = new PieceAnimator(this, Utils.createBitmapFromView(view), r, checkFlag(FLAG_SUPPORT_GRAVITY));
             view.animate().setDuration(50).alpha(0f).start();
             delay = 25;
         }
 
-        explode(explosion, delay, explosion.getDuration());
+        if (explosion != null) {
+            explode(explosion, delay, explosion.getDuration());
+        }
     }
 
     public void clear() {
@@ -132,6 +157,37 @@ public class ExplosionField extends View {
         rootView.addView(explosionField, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return explosionField;
+    }
+
+    public void addListener(View root) {
+        if (root instanceof ViewGroup) {
+            ViewGroup parent = (ViewGroup) root;
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                addListener(parent.getChildAt(i));
+            }
+        } else {
+            root.setClickable(true);
+            root.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    explode(v);
+                    v.setOnClickListener(null);
+                }
+            });
+        }
+    }
+
+    public void reset(View root) {
+        if (root instanceof ViewGroup) {
+            ViewGroup parent = (ViewGroup) root;
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                reset(parent.getChildAt(i));
+            }
+        } else {
+            root.setScaleX(1);
+            root.setScaleY(1);
+            root.setAlpha(1);
+        }
     }
 
 }

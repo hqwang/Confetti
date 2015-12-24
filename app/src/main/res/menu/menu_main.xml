@@ -1,5 +1,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/action_reset" android:title="@string/action_reset"
-        android:orderInCategory="100"  />
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+    <item
+        android:id="@+id/action_reset"
+        android:orderInCategory="100"
+        android:title="@string/action_reset" />
+    <item
+        android:id="@+id/action_mode_explosion"
+        android:orderInCategory="101"
+        android:title="@string/action_mode_explosion" />
+    <item
+        android:id="@+id/action_mode_confetti"
+        android:orderInCategory="102"
+        android:title="@string/action_mode_confetti" />
+    <item
+        android:id="@+id/action_mode_confetti_gravity"
+        android:orderInCategory="103"
+        android:title="@string/action_mode_confetti_gravity" />
 </menu>

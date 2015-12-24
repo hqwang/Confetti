@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">ConfettiSample</string>
     <string name="action_reset">Reset</string>
+    <string name="action_mode_explosion">Explosion mode</string>
+    <string name="action_mode_confetti">Confetti mode</string>
+    <string name="action_mode_confetti_gravity">Confetti gravity</string>
+
 </resources>
