@@ -1,5 +1,5 @@
 # Confetti
-An implementation of transition effect in Keynote.
+An implementation of transition effect in Keynote. See ![demo.apk](demo.apk)
 
 ![](https://img.shields.io/hexpm/l/plug.svg)
 ![](https://img.shields.io/badge/Platform-Android-brightgreen.svg)
@@ -21,9 +21,7 @@ explosionField.explode(view);
 
 This library is licensed under the [Apache Software License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-See [`LICENSE`](LICENSE) for full of the license text.
-
-    Copyright (C) 2015 [Hanks](https://github.com/hanks-zyh)
+    Copyright (C) 2015 [hqwang](https://github.com/hqwang/Confetti)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
